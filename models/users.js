@@ -1,6 +1,21 @@
 const mongoose = require('mongoose');
 
+const validateUserId = (value) => {
+  // ตรวจสอบว่ามีความยาว 4 ตัวอักษรและเริ่มต้นด้วยตัวอักษร A-Z ตามด้วยตัวเลข 3 หลัก
+  return /^[A-Z][0-9]{3}$/.test(value);
+};
+
 const userSchema = new mongoose.Schema({
+
+  user_id: {
+    type: String,
+    required: true,
+    validate: {
+        validator: validateUserId,
+        message: props => `${props.value} is not a valid user_id. Must be in the format A001-Z999.`
+    }
+},// ไม่ต้องเพิ่มข้อมูลเข้าไป เพราะ มีการสร้างเอง อัตโนมัต
+
 User_prefix: {	type: String,
 		enum:['นาย','นาง','นางสาว']
  		,required: true	},

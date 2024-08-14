@@ -6,16 +6,44 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+
+const generateAdminId = async () => {
+    const lastAdmin = await Admin.findOne().sort({ admin_id: -1 }).exec(); 
+
+    if (!lastAdmin) {
+        return 'A01'; 
+    }
+
+    const lastAdminId = lastAdmin.admin_id; 
+    let letterPart = lastAdminId.slice(0, 1);
+    let numberPart = parseInt(lastAdminId.slice(1), 10); 
+
+    numberPart += 1;
+
+    if (numberPart > 99) {
+        
+        letterPart = String.fromCharCode(letterPart.charCodeAt(0) + 1);
+        numberPart = 1;
+    }
+
+    const newAdminId = `${letterPart}${numberPart.toString().padStart(2, '0')}`; 
+
+    return newAdminId;
+};
+
+
+
 exports.register = async (req,res) => {
     const {admin_username,admin_password,admin_Fname,admin_Lname,admin_tel,admin_email,admin_image} = req.body
 
     try{
         const hashedPasswor = await bcrypt.hash(admin_password,10);
-        const admin = new Admin ({admin_username, admin_password: hashedPasswor, admin_Fname, admin_Lname ,admin_tel,admin_email,admin_image});
+        const admin_id = await generateAdminId();
+        const admin = new Admin ({admin_id,admin_username, admin_password: hashedPasswor, admin_Fname, admin_Lname ,admin_tel,admin_email,admin_image});
         await admin.save();
         res.status(201).send("Admin registered");
     }catch (err){
-        res.status(400).send(err.message);
+        res.status(500).send(err.message);
     }
 }
 
@@ -30,7 +58,7 @@ exports.login = async(req,res) =>{
         const accessToken = jwt.sign(
             {adminId : admin._id},
             process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn : "10m"}
+            {expiresIn : "15m"}
         );
         const refreshToken = jwt.sign(
             {adminId: admin._id},
@@ -53,7 +81,7 @@ exports.refresh = async(req,res) =>{
         const accessToken = jwt.sign(
             {adminID: admin.adminId},
             process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn:"15m"}
+            {expiresIn:"25m"}
         );
         res.json({accessToken});
     })

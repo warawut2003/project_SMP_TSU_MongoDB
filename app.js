@@ -19,6 +19,9 @@ const UserRoute = require('./routes/User');
 app.use('/api',UserRoute);
 
 
+const AdminActionRoute = require('./routes/ActionAdmin');
+app.use('/api/admin/action',AdminActionRoute);
+
 
 const PORT = process.env.PORT || 3000;
 
