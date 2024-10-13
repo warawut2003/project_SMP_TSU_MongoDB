@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {register , login , refresh} = require("../controllers/authController");
+const {register , login , refresh} = require("../controllers/authcontroller");
 
 router.post("/",async(req,res)=>{
     res.sendStatus(404);

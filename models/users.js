@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
     }
 },// ไม่ต้องเพิ่มข้อมูลเข้าไป เพราะ มีการสร้างเอง อัตโนมัต
 
+National_ID: {
+  type: String,
+  required: true,
+  unique: true,
+  validate: {
+    validator: function(v) {
+      return /^\d{13}$/.test(v); // Validates that the National_ID contains exactly 13 digits
+    },
+    message: props => `${props.value} is not a valid National ID! Must be 13 digits.`
+  }
+},
+
 User_prefix: {	type: String,
 		enum:['นาย','นาง','นางสาว']
  		,required: true	},
@@ -62,6 +74,21 @@ user_status: {type: String ,
 		required: true},
 User_Image: {type: String ,required: true},
 User_file: {type: String ,required: true},
+
+ // Foreign key linking to the Admin collection
+ admin_id_FK: {
+  type: String,
+  ref: 'Admin',  // Linking to the Admin collection
+  required: true
+},
+
+// Foreign key linking to the Project collection
+project_id_FK: {
+  type: String,
+  ref: 'Project',  // Linking to the Project collection
+  required: true
+}
+
 
 },{timestamps:true , versionKey:false});
 

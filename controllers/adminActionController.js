@@ -1,12 +1,18 @@
 const Users = require('../models/users');
 
-exports.getUsers = async(req,res) =>{
-    try{
-        const user = await Users.find();
-        res.status(200).json(user);
+exports.admin_getUsers = async (req, res) => {
+    const project_id = req.params.project_id; // รับ project_id จากพารามิเตอร์ใน URL
 
-    }catch (err){
-        res.status(500).json({message: err.message});
+    try {
+        // ค้นหาผู้ใช้ที่มี project_id_fk ตรงกับ project_id ที่ได้รับ
+        const users = await Users.find({ project_id_fk: project_id }) // ใช้ Mongoose เพื่อค้นหา
+            .select('User_id User_Fname User_Lname User_phone_num User_email') // เลือกเฉพาะฟิลด์ที่ต้องการ
+            .sort({ User_id: -1 }); // เรียงลำดับ User_id จากมากไปน้อย
+
+        res.json(users); // ส่งผลลัพธ์กลับไปยังฝั่ง client
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.status(500).send('Error fetching users.');
     }
 };
 
@@ -21,32 +27,35 @@ exports.getUser = async (req,res) =>{
     }
 };
 
-exports.updateUser = async (req,res) => {
-    const {user_status} = req.body
-    try{
-        const {id} = req.params;
-        const user = await Users.findOne({user_id: id});
+exports.admin_UpdateUser = async (req, res) => {
+    const { User_status, admin_id } = req.body; // รับข้อมูลจาก body
+    const userId = req.params.id; // รับ User_id จากพารามิเตอร์ใน URL
 
-        if(!user) return res.status(404).json({message : 'User not found'});
+    try {
+        const now = new Date(); // สร้างวันที่ปัจจุบัน
 
-        // ตรวจสอบค่า user_status ว่าเป็นค่าใน enum หรือไม่
-        const validStatuses = ['ยังไม่ได้ตรวจสอบ', 'เอกสารครบถ้วน', 'เอกสารไม่ครบถ้วน'];
-        if (!validStatuses.includes(user_status)) {
-            return res.status(400).json({ message: 'Please enter the correct value.' });
+        // ค้นหาและอัปเดตผู้ใช้ที่มี User_id ตรงกับ userId
+        const updatedUser = await User.findOneAndUpdate(
+            { User_id: userId }, // เงื่อนไขการค้นหา
+            {
+                User_status: User_status, // อัปเดต User_status
+                admin_id_FK: admin_id, // อัปเดต admin_id_FK
+                update_at: now // อัปเดตวันที่
+            },
+            { new: true } // คืนค่าผลลัพธ์ที่อัปเดตแล้ว
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send("User not found."); // ตรวจสอบว่าพบผู้ใช้หรือไม่
         }
 
-        const data = {$set : {user_status}};
-        
-
-        await Users.updateOne({ user_id: id }, data);
-
-        res.status(200).json({ message: 'User updated successfully' });
-    }catch (err) { 
-
-        res.status(400).json({ message: err.message }); 
-
+        console.log('Update Successfully');
+        res.status(200).send("Update Successfully.");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error updating user.");
     }
-}
+};
 
 exports.deleteUser = async(req,res) =>{
     try{

@@ -13,14 +13,18 @@ mongoose.connect(process.env.MONGO_URL,{
 .catch(err => console.log(err));
 
 const authRoute = require('./routes/AdminAuth');
-app.use('/api/admin',authRoute);
+app.use('/api/auth/admin',authRoute);
 
 const UserRoute = require('./routes/User');
-app.use('/api',UserRoute);
+app.use('/api/user',UserRoute);
 
 
 const AdminActionRoute = require('./routes/ActionAdmin');
-app.use('/api/admin/action',AdminActionRoute);
+app.use('/api/admin',AdminActionRoute);
+
+
+const ProjectRoute = require('./routes/project');
+app.use('/api/project',ProjectRoute);
 
 
 const PORT = process.env.PORT || 3000;

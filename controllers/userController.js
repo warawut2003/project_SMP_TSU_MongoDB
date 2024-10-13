@@ -37,13 +37,20 @@ exports.getUsers = async(req,res) =>{
     }
 };
 
-exports.getUser = async (req,res) =>{
-    try{
+exports.getUser = async (req, res) => {
+    try {
         const { id } = req.params;
-        const user  = await Users.findOne({user_id: id});
-        if (!user) return res.status(404).json({message:"User not found"});
+        const { projectID } = req.body;
+
+        // Find the user by National_ID and projectID, using MongoDB's findOne and populate for related data
+        const user = await Users.findOne({ National_ID: id, project_id_fk: projectID })
+            .populate('project_id_fk', 'project_name'); // Assuming you have a relationship between users and projects
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
         res.status(200).json(user);
-    }catch (err){
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 };

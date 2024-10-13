@@ -34,12 +34,15 @@ const generateAdminId = async () => {
 
 
 exports.register = async (req,res) => {
-    const {admin_username,admin_password,admin_Fname,admin_Lname,admin_tel,admin_email,admin_image} = req.body
+    const {admin_username,admin_password,admin_Fname,admin_Lname,admin_tel,admin_email} = req.body
+
+    
+
 
     try{
         const hashedPasswor = await bcrypt.hash(admin_password,10);
         const admin_id = await generateAdminId();
-        const admin = new Admin ({admin_id,admin_username, admin_password: hashedPasswor, admin_Fname, admin_Lname ,admin_tel,admin_email,admin_image});
+        const admin = new Admin ({admin_id,admin_username, admin_password: hashedPasswor, admin_Fname, admin_Lname ,admin_tel,admin_email});
         await admin.save();
         res.status(201).send("Admin registered");
     }catch (err){
@@ -50,21 +53,22 @@ exports.register = async (req,res) => {
 exports.login = async(req,res) =>{
     const {admin_username , admin_password} = req.body;
     try {
-        const admin = await Admin.findOne({admin_username});
-        if(!admin) return res.status(400).send("admin not found");
-        const isMatch = await bcrypt.compare(admin_password, admin.admin_password);
+        const tmpadmin = await Admin.findOne({admin_username});
+        if(!tmpadmin) return res.status(400).send("admin not found");
+        const isMatch = await bcrypt.compare(admin_password, tmpadmin.admin_password);
         if(!isMatch) return res.status(400).send("Invalid cradentials");
-        const name=admin.admin_Fname+" "+admin.admin_Lname;
+        const admin = await Admin.findOne({admin_username}).select("-admin_password");
         const accessToken = jwt.sign(
             {adminId : admin._id},
             process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn : "15m"}
+            {expiresIn : "1h"}
         );
         const refreshToken = jwt.sign(
             {adminId: admin._id},
-            process.env.REFRESH_TOKEN_SECRET
+            process.env.REFRESH_TOKEN_SECRET,
+            {expiresIn : "2h"}
         );
-        res.json({admin_username,name,accessToken, refreshToken});
+        res.json({admin,accessToken, refreshToken});
 
     }catch (err){
         res.status(500).send(err.message);
@@ -72,16 +76,21 @@ exports.login = async(req,res) =>{
 };
 
 exports.refresh = async(req,res) =>{
-    const {token} = req.body;
-
-    if(!token) return res.sendStatus(401);
+    const token = req.headers['authorization']?.split(' ')[1]; // 'Bearer <token>'
+    if (!token) return res.status(401).json({ message: 'No token provided' });
 
     jwt.verify(token , process.env.REFRESH_TOKEN_SECRET, (err, admin)=>{
-        if(err) return res.sendStatus(403);
+        if (err) {
+            if (err.name === "TokenExpiredError") {
+                return res.status(401).send("Refresh token expired. Please log in again.");
+            }
+            return res.status(403).send("Invalid refresh token");
+        }
+
         const accessToken = jwt.sign(
             {adminID: admin.adminId},
             process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn:"25m"}
+            {expiresIn:"1h"}
         );
         res.json({accessToken});
     })

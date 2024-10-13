@@ -39,7 +39,7 @@ const adminSchma = new mongoose.Schema({
       message: props => `${props.value} is not a valid email!`
     }
 },
-admin_image:{type: String , required: true}
+
 
 },{timestamps:true , versionKey:false});
 module.exports = mongoose.model('Admin',adminSchma);
