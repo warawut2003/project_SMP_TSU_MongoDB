@@ -16,7 +16,7 @@ const authRoute = require('./routes/AdminAuth');
 app.use('/api/auth/admin',authRoute);
 
 const UserRoute = require('./routes/User');
-app.use('/api/user',UserRoute);
+app.use('/api',UserRoute);
 
 
 const AdminActionRoute = require('./routes/ActionAdmin');

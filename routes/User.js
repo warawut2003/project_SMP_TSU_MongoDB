@@ -5,10 +5,10 @@ const { getUsers, getUser, createUser,updateUser,deleteUser} = require('../contr
 
 const router = express.Router();
 
-router.get('/users', getUsers);
-router.get('/user/:id',getUser);
-router.post('/user',createUser);
-router.put('/user/:id', updateUser);
-router.delete('/user/:id',deleteUser);
-
+router.get('/get', getUsers);
+router.get('/get/:id',getUser);
+router.post('/user/create',createUser);
+router.put('/update/:id', updateUser);
+router.delete('/delete/:id',deleteUser);
+    
 module.exports = router;

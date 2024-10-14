@@ -69,8 +69,8 @@ User_email: {type: String,
 },
 
 user_status: {type: String ,
-		enum:['ยังไม่ได้ตรวจสอบ','เอกสารครบถ้วน','เอกสารไม่ครบถ้วน'],
-		default:'ยังไม่ได้ตรวจสอบ',
+		enum:['รอการตรวจสอบ','เอกสารครบถ้วน','เอกสารไม่ครบถ้วน'],
+		default:'รอการตรวจสอบ',
 		required: true},
 User_Image: {type: String ,required: true},
 User_file: {type: String ,required: true},
@@ -79,7 +79,7 @@ User_file: {type: String ,required: true},
  admin_id_FK: {
   type: String,
   ref: 'Admin',  // Linking to the Admin collection
-  required: true
+  required: false
 },
 
 // Foreign key linking to the Project collection

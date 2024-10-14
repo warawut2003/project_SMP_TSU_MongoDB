@@ -37,7 +37,7 @@ exports.register = async (req,res) => {
     const {admin_username,admin_password,admin_Fname,admin_Lname,admin_tel,admin_email} = req.body
 
     
-
+    
 
     try{
         const hashedPasswor = await bcrypt.hash(admin_password,10);

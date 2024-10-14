@@ -99,11 +99,11 @@ exports.deleteProject = async(req,res) =>{
 exports.nonEndProject = async (req, res) => {
     try {
         // Query เพื่อดึงข้อมูลโปรเจกต์ที่ยังไม่หมดอายุ
-        const projects = await Project.find({
+        const projects = await Projects.find({
             project_expiration_date: { $gt: new Date() } // ตรวจสอบว่า project_expiration_date มากกว่าเวลาปัจจุบัน
         })
         .sort({ project_start_date: -1 }) // เรียงลำดับจากวันที่เริ่มต้นในลำดับจากมากไปน้อย
-        .select('project_id project_name project_start_date project_expiration_date project_file'); // เลือกเฉพาะฟิลด์ที่ต้องการ
+        .select('project_id project_name project_start_date project_expiration_date project_file admin_id_FK'); // เลือกเฉพาะฟิลด์ที่ต้องการ
 
         res.json(projects); // ส่งผลลัพธ์กลับไปยังฝั่ง client
     } catch (err) {
