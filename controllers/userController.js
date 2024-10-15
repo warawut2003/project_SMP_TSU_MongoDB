@@ -59,23 +59,13 @@ exports.createUser = async (req,res) => {
     const user_id = await generateUserId();
 
     const {National_ID,User_prefix, User_Fname, User_Lname, User_gender,User_Date_Birth,User_age,User_phone_num,User_email,user_status,User_Image,User_file,project_id_FK} = req.body;
-    console.log("National_ID:", National_ID);
-    console.log("User_prefix:", User_prefix);
-    console.log("User_Fname:", User_Fname);
-    console.log("User_Lname:", User_Lname);
-    console.log("User_gender:", User_gender);
-    console.log("User_Date_Birth:", User_Date_Birth);
-    console.log("User_age:", User_age);
-    console.log("User_phone_num:", User_phone_num);
-    console.log("User_email:", User_email);
-    console.log("user_status:", user_status);
-    console.log("User_Image:", User_Image);
-    console.log("User_file:", User_file);
+    
 
-    const user = new Users({National_ID,user_id,User_prefix, User_Fname, User_Lname, User_gender,User_Date_Birth,User_age,User_phone_num,User_email,user_status,User_Image,User_file,project_id_FK})
+    const user = new Users({user_id,National_ID,User_prefix, User_Fname, User_Lname, User_gender,User_Date_Birth,User_age,User_phone_num,User_email,user_status,User_Image,User_file,project_id_FK})
     try{
         
         const newUser = await user.save();
+        console.log(newUser);
         res.status(201).json(newUser);
     }catch (err){
         res.status(400).json({message: err.message});
