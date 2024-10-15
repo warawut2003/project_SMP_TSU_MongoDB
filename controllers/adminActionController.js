@@ -5,11 +5,12 @@ exports.admin_getUsers = async (req, res) => {
 
     try {
         // ค้นหาผู้ใช้ที่มี project_id_fk ตรงกับ project_id ที่ได้รับ
-        const users = await Users.find({ project_id_fk: project_id }) // ใช้ Mongoose เพื่อค้นหา
-            .select('User_id User_Fname User_Lname User_phone_num User_email') // เลือกเฉพาะฟิลด์ที่ต้องการ
+        const users = await Users.find({ project_id_FK: project_id }) // ใช้ Mongoose เพื่อค้นหา
             .sort({ User_id: -1 }); // เรียงลำดับ User_id จากมากไปน้อย
 
         res.json(users); // ส่งผลลัพธ์กลับไปยังฝั่ง client
+
+        console.log(users);
     } catch (err) {
         console.error('Error fetching users:', err);
         res.status(500).send('Error fetching users.');
@@ -28,17 +29,18 @@ exports.getUser = async (req,res) =>{
 };
 
 exports.admin_UpdateUser = async (req, res) => {
-    const { User_status, admin_id } = req.body; // รับข้อมูลจาก body
+    const { user_status, admin_id } = req.body; // รับข้อมูลจาก body
+    
     const userId = req.params.id; // รับ User_id จากพารามิเตอร์ใน URL
 
     try {
         const now = new Date(); // สร้างวันที่ปัจจุบัน
 
         // ค้นหาและอัปเดตผู้ใช้ที่มี User_id ตรงกับ userId
-        const updatedUser = await User.findOneAndUpdate(
-            { User_id: userId }, // เงื่อนไขการค้นหา
+        const updatedUser = await Users.findOneAndUpdate(
+            { user_id: userId }, // เงื่อนไขการค้นหา
             {
-                User_status: User_status, // อัปเดต User_status
+                user_status: user_status, // อัปเดต User_status
                 admin_id_FK: admin_id, // อัปเดต admin_id_FK
                 update_at: now // อัปเดตวันที่
             },

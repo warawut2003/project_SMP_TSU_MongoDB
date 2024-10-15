@@ -39,7 +39,7 @@ User_gender: {type: String ,
 		required: true},
 
 User_Date_Birth: {type: Date, 
-    required: false, 
+    required: true, 
    	},
 User_age: {type: Number, 
     required: true, 
