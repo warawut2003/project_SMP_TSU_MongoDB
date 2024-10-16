@@ -1,5 +1,5 @@
 const Users = require('../models/users'); 
-
+const mongoose = require('mongoose');
 // ฟังก์ชันสำหรับสร้าง user_id ในรูปแบบ A001 ถึง Z999
 const generateUserId = async () => {
     const lastUser = await Users.findOne().sort({ user_id: -1 }).exec(); // หาผู้ใช้คนล่าสุดตาม user_id
@@ -38,20 +38,35 @@ exports.getUsers = async(req,res) =>{
 };
 
 exports.getUser = async (req, res) => {
+    const nationalId = req.params.id;
+    const projectId = req.query.project_id;
+
+    console.log(nationalId);
+    console.log(projectId);
+    
+    // ตรวจสอบว่ามีเลขบัตรประชาชนและ Project ID หรือไม่
+    if (!nationalId || !projectId) {
+        return res.status(400).send('กรุณาระบุเลขบัตรประชาชนและ Project ID');
+    }
+
     try {
-        const { id } = req.params;
-        const { projectID } = req.body;
+        // ค้นหาผู้ใช้ในฐานข้อมูล
+        const user = await Users.findOne({
+            National_ID: nationalId,
+            project_id_FK: projectId, // ใช้ projectId โดยตรง
+        });
 
-        // Find the user by National_ID and projectID, using MongoDB's findOne and populate for related data
-        const user = await Users.findOne({ National_ID: id, project_id_fk: projectID })
-            .populate('project_id_fk', 'project_name'); // Assuming you have a relationship between users and projects
+        console.log(user);
 
-        if (!user) return res.status(404).json({ message: "User not found" });
-
-        res.status(200).json(user);
+        // ตรวจสอบว่ามีผู้ใช้ที่ค้นพบหรือไม่
+        if (user) {
+            return res.status(200).json(user); // ส่งข้อมูลผู้ใช้กลับโดยไม่รวมข้อมูลโครงการ
+        } else {
+            return res.status(404).send('ไม่พบข้อมูลผู้ใช้'); // ไม่มีผู้ใช้
+        }
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: err.message });
+        return res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้'); // ข้อผิดพลาดทั่วไป
     }
 };
 
